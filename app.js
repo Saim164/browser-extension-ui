@@ -58,12 +58,10 @@ let renderCard = (list) => {
     input.type = "checkbox";
     input.role = "switch";
     input.classList.add("form-check-input");
-    input.id = "switchCheckDefault";
     input.checked = extension.isActive;
 
     input.addEventListener("change", () => {
       extension.isActive = input.checked;
-      s;
     });
 
     toggle.appendChild(input);
@@ -76,7 +74,9 @@ fetch("./data.json")
   .then((data) => {
     extensions = data;
     renderCard(extensions);
-  });
+  }).catch((err)=>{
+    console.error("failed to load json" , err);
+  })
 
 const allBtn = document.querySelector(".allbtn");
 const activeBtn = document.querySelector(".activebtn");
