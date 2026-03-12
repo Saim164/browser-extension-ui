@@ -1,6 +1,41 @@
 let extensions = [];
 const body = document.querySelector("body");
 
+const allBtn = document.querySelector(".allbtn");
+const activeBtn = document.querySelector(".activebtn");
+const inactiveBtn = document.querySelector(".inactivebtn");
+
+const buttons = [allBtn, activeBtn, inactiveBtn];
+
+let currentFilter = "all";
+
+function selectbutton(btn) {
+  buttons.forEach((button) => {
+    button.classList.remove("selected");
+  });
+  btn.classList.add("selected");
+}
+
+allBtn.addEventListener("click", () => {
+  selectbutton(allBtn);
+  currentFilter = "all";
+  renderCard(extensions);
+});
+
+activeBtn.addEventListener("click", () => {
+  selectbutton(activeBtn);
+  currentFilter = "active";
+  const filtered = extensions.filter((ext) => ext.isActive);
+  renderCard(filtered);
+});
+
+inactiveBtn.addEventListener("click", () => {
+  selectbutton(inactiveBtn);
+  currentFilter = "inactive";
+  const filtered = extensions.filter((ext) => !ext.isActive);
+  renderCard(filtered);
+});
+
 let renderCard = (list) => {
   const container = document.querySelector(".extension-container");
   container.innerHTML = "";
@@ -40,17 +75,6 @@ let renderCard = (list) => {
     cardBtn.classList.add("cardbtn");
     card.appendChild(cardBtn);
 
-    const remove = document.createElement("button");
-    remove.classList.add("remove-btn");
-    remove.style.height = "30px";
-    remove.innerText = "Remove";
-    cardBtn.appendChild(remove);
-
-    remove.addEventListener("click", () => {
-      extensions = extensions.filter((ext) => ext !== extension);
-      renderCard(extensions);
-    });
-
     const toggle = document.createElement("div");
     toggle.classList.add("form-check");
     toggle.classList.add("form-switch");
@@ -65,6 +89,26 @@ let renderCard = (list) => {
     });
 
     toggle.appendChild(input);
+
+    const remove = document.createElement("button");
+    remove.classList.add("remove-btn");
+    remove.style.height = "30px";
+    remove.innerText = "Remove";
+    cardBtn.appendChild(remove);
+
+    remove.addEventListener("click", () => {
+      extensions = extensions.filter((ext) => ext !== extension);
+      if (currentFilter === "active") {
+        const filtered = extensions.filter((ext) => ext.isActive);
+        renderCard(filtered);
+      } else if (currentFilter === "inactive") {
+        const filtered = extensions.filter((ext) => !ext.isActive);
+        renderCard(filtered);
+      } else {
+        renderCard(extensions);
+      }
+    });
+
     cardBtn.appendChild(toggle);
   });
 };
@@ -74,42 +118,10 @@ fetch("./data.json")
   .then((data) => {
     extensions = data;
     renderCard(extensions);
-  }).catch((err)=>{
-    console.error("failed to load json" , err);
   })
-
-const allBtn = document.querySelector(".allbtn");
-const activeBtn = document.querySelector(".activebtn");
-const inactiveBtn = document.querySelector(".inactivebtn");
-
-const buttons = [allBtn, activeBtn, inactiveBtn];
-
-function selectbutton(btn) {
-  buttons.forEach((button) => {
-    button.classList.remove("selected");
+  .catch((err) => {
+    console.error("failed to load json", err);
   });
-  btn.classList.add("selected");
-}
-
-allBtn.addEventListener("click", () => {
-  selectbutton(allBtn);
-
-  renderCard(extensions);
-});
-
-activeBtn.addEventListener("click", () => {
-  selectbutton(activeBtn);
-
-  const filtered = extensions.filter((ext) => ext.isActive);
-  renderCard(filtered);
-});
-
-inactiveBtn.addEventListener("click", () => {
-  selectbutton(inactiveBtn);
-
-  const filtered = extensions.filter((ext) => !ext.isActive);
-  renderCard(filtered);
-});
 
 const span = document.querySelector(".span");
 const sun = document.querySelector(".sun");
